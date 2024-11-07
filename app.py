@@ -57,13 +57,6 @@ dinov2_repo_id = "facebook/dinov2-large"
 lcm_repo_id = "latent-consistency/lcm-lora-sdxl"
 
 
-instantir_path = f'./models'
-
-device = "cuda" if torch.cuda.is_available() else "cpu"
-sdxl_repo_id = "stabilityai/stable-diffusion-xl-base-1.0"
-dinov2_repo_id = "facebook/dinov2-large"
-lcm_repo_id = "latent-consistency/lcm-lora-sdxl"
-
 if torch.cuda.is_available():
     torch_dtype = torch.float16
 else:
