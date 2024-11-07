@@ -2,6 +2,13 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+import warnings
+
+# Filter out all deprecation warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
+
 import torch
 import numpy as np
 import gradio as gr
@@ -36,7 +43,21 @@ def resize_img(input_image, max_side=1280, min_side=1024, size=None,
         input_image = Image.fromarray(res)
     return input_image
 
-instantir_path = os.environ['INSTANTIR_PATH']
+from huggingface_hub import hf_hub_download
+
+hf_hub_download(repo_id="InstantX/InstantIR", filename="models/adapter.pt", local_dir=".")
+hf_hub_download(repo_id="InstantX/InstantIR", filename="models/aggregator.pt", local_dir=".")
+hf_hub_download(repo_id="InstantX/InstantIR", filename="models/previewer_lora_weights.bin", local_dir=".")
+
+instantir_path = f'./models'
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+sdxl_repo_id = "stabilityai/stable-diffusion-xl-base-1.0"
+dinov2_repo_id = "facebook/dinov2-large"
+lcm_repo_id = "latent-consistency/lcm-lora-sdxl"
+
+
+instantir_path = f'./models'
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 sdxl_repo_id = "stabilityai/stable-diffusion-xl-base-1.0"
@@ -107,8 +128,7 @@ def dynamic_guidance_slider(sampling_steps):
 def show_final_preview(preview_row):
     return preview_row[-1][0]
 
-# @spaces.GPU #[uncomment to use ZeroGPU]
-@torch.no_grad()
+
 def instantir_restore(
     lq, prompt="", steps=30, cfg_scale=7.0, guidance_end=1.0,
     creative_restoration=False, seed=3407, height=1024, width=1024, preview_start=0.0):
